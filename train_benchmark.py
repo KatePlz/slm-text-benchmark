@@ -154,6 +154,9 @@ def resolve_lora_targets(model):
 def build_training_args(args, run_dir):
     """Создание TrainingArguments с учётом различий API transformers v4/v5."""
     ta_params = inspect.signature(TrainingArguments.__init__).parameters
+
+    # В transformers>=4.46 evaluation_strategy переименован в eval_strategy,
+    # в v5 старое имя удалено полностью.
     eval_key = "eval_strategy" if "eval_strategy" in ta_params else "evaluation_strategy"
 
     kwargs = dict(
@@ -166,7 +169,6 @@ def build_training_args(args, run_dir):
         num_train_epochs=args.epochs,
         weight_decay=0.01,
         logging_steps=50,
-        logging_first_step=True,   # фиксируем начальный уровень потерь (для графика сходимости)
         load_best_model_at_end=True,
         metric_for_best_model="macro_f1",
         greater_is_better=True,
@@ -261,28 +263,12 @@ def main():
     if torch.cuda.is_available():
         max_memory_gb = torch.cuda.max_memory_allocated() / (1024 ** 3)
 
-    # Финальная оценка + сохранение вероятностей для калибровочных кривых
-    eval_output = trainer.predict(tokenized_datasets[eval_split], metric_key_prefix="eval")
-    eval_metrics = dict(eval_output.metrics)
+    # Финальная оценка
+    eval_metrics = trainer.evaluate()
     eval_metrics["sec_per_epoch"] = sec_per_epoch
     eval_metrics["max_vram_gb"] = max_memory_gb
 
-    predictions = eval_output.predictions
-    if isinstance(predictions, tuple):
-        predictions = predictions[0]
-    probabilities = torch.softmax(torch.tensor(predictions), dim=-1).numpy()
-    labels = np.asarray(eval_output.label_ids)
-
     os.makedirs(run_dir, exist_ok=True)
-    np.savez(
-        os.path.join(run_dir, "eval_predictions.npz"),
-        labels=labels,
-        probabilities=probabilities,
-    )
-
-    history = [entry for entry in trainer.state.log_history if "loss" in entry]
-    with open(os.path.join(run_dir, "history.json"), "w", encoding="utf-8") as f:
-        json.dump(history, f, ensure_ascii=False, indent=2)
 
     print("=" * 60)
     print("ИТОГОВЫЕ РЕЗУЛЬТАТЫ ОЦЕНКИ:")

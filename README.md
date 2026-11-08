@@ -61,15 +61,15 @@ python train_benchmark.py --model_name "roberta-base" --dataset_name sst2 --batc
 python train_benchmark.py --model_name "roberta-base" --dataset_name ag_news --batch_size 32 --epochs 3
 
 # SmolLM2-360M на корпусе SST-2
-python train_benchmark.py --model_name "HuggingFaceTB/SmolLM2-360M" --dataset_name sst2 --batch_size 32 --epochs 3
+python train_benchmark.py --model_name "HuggingFaceTB/SmolLM2-360M" --dataset_name sst2 --batch_size 16 --epochs 3
 
 # SmolLM2-360M на корпусе AG News
-python train_benchmark.py --model_name "HuggingFaceTB/SmolLM2-360M" --dataset_name ag_news --batch_size 32 --epochs 3
+python train_benchmark.py --model_name "HuggingFaceTB/SmolLM2-360M" --dataset_name ag_news --batch_size 16 --epochs 3
 
-# Qwen2.5-0.5B на корпусе SST-2 (в статье для Qwen используется размер пакета 16)
+# Qwen2.5-0.5B на корпусе SST-2
 python train_benchmark.py --model_name "Qwen/Qwen2.5-0.5B" --dataset_name sst2 --batch_size 16 --epochs 3
 
-# Qwen2.5-0.5B на корпусе AG News (в статье для Qwen используется размер пакета 16)
+# Qwen2.5-0.5B на корпусе AG News
 python train_benchmark.py --model_name "Qwen/Qwen2.5-0.5B" --dataset_name ag_news --batch_size 16 --epochs 3
 ```
 

@@ -22,8 +22,9 @@
 ## Наборы данных
 * **SST-2** (Stanford Sentiment Treebank) — бинарная классификация тональности предложений; загружается из репозитория `nyu-mll/glue` (67 349 обучающих / 872 валидационных примеров).
 * **AG News** — многоклассовая тематическая классификация новостей (4 категории); загружается из репозитория `fancyzhx/ag_news` (120 000 обучающих / 7 600 тестовых примеров).
+* **Emotion** — многоклассовая классификация эмоциональной тональности (6 категорий: sadness, joy, love, anger, fear, surprise); загружается из репозитория `dair-ai/emotion` (16 000 обучающих / 2 000 тестовых примеров).
 
-Оба набора данных скачиваются автоматически с Hugging Face Hub при первом запуске.
+Все наборы данных скачиваются автоматически с Hugging Face Hub при первом запуске.
 
 ## Инструкция по локальному запуску
 
@@ -46,31 +47,25 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-4. Запустите скрипт бенчмаркинга:
+4. Запустите скрипты бенчмаркинга:
 ```bash
-# ModernBERT на корпусе SST-2
+# Эксперименты на корпусе SST-2:
 python train_benchmark.py --model_name "answerdotai/ModernBERT-base" --dataset_name sst2 --batch_size 32 --epochs 3
-
-# ModernBERT на корпусе AG News
-python train_benchmark.py --model_name "answerdotai/ModernBERT-base" --dataset_name ag_news --batch_size 32 --epochs 3
-
-# RoBERTa на корпусе SST-2
 python train_benchmark.py --model_name "roberta-base" --dataset_name sst2 --batch_size 32 --epochs 3
-
-# RoBERTa на корпусе AG News
-python train_benchmark.py --model_name "roberta-base" --dataset_name ag_news --batch_size 32 --epochs 3
-
-# SmolLM2-360M на корпусе SST-2
 python train_benchmark.py --model_name "HuggingFaceTB/SmolLM2-360M" --dataset_name sst2 --batch_size 16 --epochs 3
-
-# SmolLM2-360M на корпусе AG News
-python train_benchmark.py --model_name "HuggingFaceTB/SmolLM2-360M" --dataset_name ag_news --batch_size 16 --epochs 3
-
-# Qwen2.5-0.5B на корпусе SST-2
 python train_benchmark.py --model_name "Qwen/Qwen2.5-0.5B" --dataset_name sst2 --batch_size 16 --epochs 3
 
-# Qwen2.5-0.5B на корпусе AG News
+# Эксперименты на корпусе AG News:
+python train_benchmark.py --model_name "answerdotai/ModernBERT-base" --dataset_name ag_news --batch_size 32 --epochs 3
+python train_benchmark.py --model_name "roberta-base" --dataset_name ag_news --batch_size 32 --epochs 3
+python train_benchmark.py --model_name "HuggingFaceTB/SmolLM2-360M" --dataset_name ag_news --batch_size 16 --epochs 3
 python train_benchmark.py --model_name "Qwen/Qwen2.5-0.5B" --dataset_name ag_news --batch_size 16 --epochs 3
+
+# Эксперименты на корпусе Emotion:
+python train_benchmark.py --model_name "answerdotai/ModernBERT-base" --dataset_name emotion --batch_size 32 --epochs 3
+python train_benchmark.py --model_name "roberta-base" --dataset_name emotion --batch_size 32 --epochs 3
+python train_benchmark.py --model_name "HuggingFaceTB/SmolLM2-360M" --dataset_name emotion --batch_size 16 --epochs 3
+python train_benchmark.py --model_name "Qwen/Qwen2.5-0.5B" --dataset_name emotion --batch_size 16 --epochs 3
 ```
 
 ## Параметры запуска
@@ -78,7 +73,7 @@ python train_benchmark.py --model_name "Qwen/Qwen2.5-0.5B" --dataset_name ag_new
 | Параметр | По умолчанию | Назначение |
 |---|---|---|
 | `--model_name` | `answerdotai/ModernBERT-base` | Идентификатор модели на Hugging Face Hub или локальный путь |
-| `--dataset_name` | `sst2` | Датасет: `sst2` или `ag_news` |
+| `--dataset_name` | `sst2` | Датасет: `sst2`, `ag_news` или `emotion` |
 | `--output_dir` | `./results` | Каталог для чекпоинтов и метрик |
 | `--batch_size` | `32` | Размер мини-пакета (в статье 32, для Qwen2.5-0.5B — 16) |
 | `--learning_rate` | `2e-4` | Скорость обучения AdamW |
@@ -103,7 +98,6 @@ python train_benchmark.py --model_name "Qwen/Qwen2.5-0.5B" --dataset_name ag_new
 ## Результаты запуска
 
 Для каждого запуска создается каталог `results/{модель}_{датасет}/`, содержащий:
-* `benchmark_metrics.txt` и `metrics.json` — итоговые метрики оценки, время эпохи и пиковое потребление VRAM;
-* `checkpoint-*/` — чекпоинты с весами адаптеров LoRA (сохраняется лучшая модель по метрике Macro-F1).
+`benchmark_metrics.txt` и `metrics.json` — итоговые метрики оценки, время эпохи и пиковое потребление VRAM.
 
 Примечание: режим FP16 и замер VRAM активируются автоматически только при наличии CUDA-устройства; на CPU значение `max_vram_gb` равно 0.

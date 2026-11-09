@@ -1,0 +1,11 @@
+eval_loss: 0.24899059534072876
+eval_accuracy: 0.9145
+eval_macro_f1: 0.8718915647566717
+eval_cross_entropy: 0.24898529708271236
+eval_brier_score: 0.12488525158767105
+eval_runtime: 6.5114
+eval_samples_per_second: 307.153
+eval_steps_per_second: 9.675
+epoch: 3.0
+sec_per_epoch: 99.38585233688354
+max_vram_gb: 4.000942230224609
